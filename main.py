@@ -33,12 +33,12 @@ async def consultar_resultados(update: Update, context) -> None:
     chat_id = update.message.chat_id
     
     # Mensagem inicial de consulta
-    await context.bot.send_message(chat_id=chat_id, text="🔍 *Consultando resultados...*")
+    await context.bot.send_message(chat_id=chat_id, text=" *Consultando resultados...*")
 
     resultados = fetch_resultados()  # Busca os resultados
 
     if not resultados:
-        await context.bot.send_message(chat_id=chat_id, text="🚫 Nenhum resultado encontrado.")
+        await context.bot.send_message(chat_id=chat_id, text=" Nenhum resultado encontrado.")
         return
 
     agora = datetime.now()
@@ -58,7 +58,7 @@ async def consultar_resultados(update: Update, context) -> None:
         ]
 
         # Formata e envia os horários previstos ao usuário
-        mensagem = "📅 *Horários previstos de velas rosas🌷:*\n"
+        mensagem = " *Horários previstos de velas rosas:*\n"
         mensagem += "\n".join(horario.strftime('%H:%M:%S') for horario in horarios_previstos)
 
         # Hora atual de Brasília
@@ -68,7 +68,7 @@ async def consultar_resultados(update: Update, context) -> None:
         # Enviar mensagem com horários
         await context.bot.send_message(chat_id=chat_id, text=mensagem, parse_mode='MarkdownV2')
     else:
-        await context.bot.send_message(chat_id=chat_id, text="🚫 Nenhum horário futuro encontrado.")
+        await context.bot.send_message(chat_id=chat_id, text=" Nenhum horário futuro encontrado.")
 
 # Função principal para iniciar o bot
 @app.on_event("startup")
