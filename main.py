@@ -1,19 +1,12 @@
+import requests
 from telegram import Update
 from telegram.ext import Application, CommandHandler
-from fastapi import FastAPI, Request
-from telegram.ext import ApplicationBuilder
-import requests
-import logging
 from datetime import datetime, timedelta
-import os
-
-app = FastAPI()
+import logging
 
 # Configuração do logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-
-# Inicializando o Application fora da função
-application = ApplicationBuilder().token("7359248793:AAEOyPPaHPZvEICuHXtzlgViUO3VP-Ubv7U").build()
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.INFO)
 
 # Função para buscar os resultados da API
 def fetch_resultados():
@@ -35,9 +28,10 @@ async def consultar_resultados(update: Update, context) -> None:
     chat_id = update.message.chat_id
     
     # Mensagem inicial de consulta
-    await context.bot.send_message(chat_id=chat_id, text="*Consultando resultados...*")
+    await context.bot.send_message(chat_id=chat_id, text="Consultando resultados...")
 
     resultados = fetch_resultados()  # Busca os resultados
+    logging.info(f'Resultados da API: {resultados}')  # Log dos resultados da API
 
     if not resultados:
         await context.bot.send_message(chat_id=chat_id, text="Nenhum resultado encontrado.")
@@ -60,32 +54,30 @@ async def consultar_resultados(update: Update, context) -> None:
         ]
 
         # Formata e envia os horários previstos ao usuário
-        mensagem = "*Horários previstos de velas rosas:*\n"
+        mensagem = "Horários previstos de velas rosas:\n"
         mensagem += "\n".join(horario.strftime('%H:%M:%S') for horario in horarios_previstos)
 
         # Hora atual de Brasília
-        hora_atual_brasilia = agora.strftime('%H:%M:%S')  # Ajusta para Brasília
-        mensagem += f"\n\n *Horário atual de Brasília:* {hora_atual_brasilia}"
+        hora_atual_brasilia = (agora + timedelta(hours=-3)).strftime('%H:%M:%S')  # Ajusta para Brasília
+        mensagem += f"\n\nHorário atual de Brasília: {hora_atual_brasilia}"
 
         # Enviar mensagem com horários
-        await context.bot.send_message(chat_id=chat_id, text=mensagem, parse_mode='MarkdownV2')
+        await context.bot.send_message(chat_id=chat_id, text=mensagem)
     else:
         await context.bot.send_message(chat_id=chat_id, text="Nenhum horário futuro encontrado.")
 
 # Função principal para iniciar o bot
-@app.on_event("startup")
-async def on_startup():
+def main():
+    # Substitua pelo seu token do bot
+    TOKEN = '7359248793:AAEOyPPaHPZvEICuHXtzlgViUO3VP-Ubv7U'
+
+    application = Application.builder().token(TOKEN).build()
+
     # Handler para o comando /consultar
     application.add_handler(CommandHandler("consultar", consultar_resultados))
 
-    # Definindo webhook
-    url_webhook = "https://projetobot.vercel.app/webhook"  # URL do Vercel com endpoint
-    await application.bot.set_webhook(url=url_webhook)
+    # Inicia o bot com polling
+    application.run_polling()
 
-# Endpoint webhook
-@app.post("/webhook")
-async def webhook_handler(request: Request):
-    update = await request.json()
-    update = Update.de_json(update, application.bot)
-    await application.update_queue.put(update)
-    return {"status": "ok"}
+if __name__ == '__main__':
+    main()
