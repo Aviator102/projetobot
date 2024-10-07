@@ -1,6 +1,6 @@
 import requests
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from datetime import datetime, timedelta
 import logging
 import asyncio
@@ -25,7 +25,7 @@ def fetch_resultados():
         return []
 
 # Função para responder ao comando /consultar
-async def consultar_resultados(update: Update, context) -> None:
+async def consultar_resultados(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.message.chat_id
     
     # Mensagem inicial de consulta
@@ -68,7 +68,7 @@ async def consultar_resultados(update: Update, context) -> None:
         await context.bot.send_message(chat_id=chat_id, text="Nenhum horário futuro encontrado.")
 
 # Função para responder a mensagens de texto
-async def respond_oi(update: Update, context) -> None:
+async def respond_oi(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.message.chat_id
     # Responde ao usuário
     mensagem = "Como posso ajudar?"
@@ -79,7 +79,7 @@ async def respond_oi(update: Update, context) -> None:
     await context.bot.delete_message(chat_id=chat_id, message_id=msg.message_id)
 
 # Função principal para iniciar o bot
-def main():
+async def main(event, context):
     # Substitua pelo seu token do bot
     TOKEN = '7359248793:AAEOyPPaHPZvEICuHXtzlgViUO3VP-Ubv7U'
 
@@ -92,7 +92,16 @@ def main():
     application.add_handler(MessageHandler(filters.TEXT & filters.regex(r'(?i)oi'), respond_oi))
 
     # Inicia o bot com polling
-    application.run_polling()
+    await application.initialize()
+    await application.start_polling()
 
+    return "Bot está rodando!"
+
+# Chamada para execução da função principal
 if __name__ == '__main__':
-    main()
+    import os
+    import sys
+    import asyncio
+
+    # Necessário para rodar no ambiente do Vercel
+    asyncio.run(main(None, None))
