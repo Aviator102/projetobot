@@ -12,9 +12,8 @@ app = FastAPI()
 # Configuração do logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-# Variáveis de configuração
-TOKEN = '7359248793:AAEOyPPaHPZvEICuHXtzlgViUO3VP-Ubv7U'  # Token do bot
-URL_WEBHOOK = "https://projetobot.vercel.app/webhook"  # URL do Vercel com endpoint
+# Inicializando o Application fora da função
+application = ApplicationBuilder().token("7359248793:AAEOyPPaHPZvEICuHXtzlgViUO3VP-Ubv7U").build()
 
 # Função para buscar os resultados da API
 def fetch_resultados():
@@ -66,7 +65,7 @@ async def consultar_resultados(update: Update, context) -> None:
 
         # Hora atual de Brasília
         hora_atual_brasilia = agora.strftime('%H:%M:%S')  # Ajusta para Brasília
-        mensagem += f"\n\n*Horário atual de Brasília:* {hora_atual_brasilia}"
+        mensagem += f"\n\n *Horário atual de Brasília:* {hora_atual_brasilia}"
 
         # Enviar mensagem com horários
         await context.bot.send_message(chat_id=chat_id, text=mensagem, parse_mode='MarkdownV2')
@@ -76,15 +75,12 @@ async def consultar_resultados(update: Update, context) -> None:
 # Função principal para iniciar o bot
 @app.on_event("startup")
 async def on_startup():
-    # Configurando o bot com webhook
-    global application
-    application = ApplicationBuilder().token(TOKEN).build()
-
     # Handler para o comando /consultar
     application.add_handler(CommandHandler("consultar", consultar_resultados))
 
     # Definindo webhook
-    await application.bot.set_webhook(url=URL_WEBHOOK)
+    url_webhook = "https://projetobot.vercel.app/webhook"  # URL do Vercel com endpoint
+    await application.bot.set_webhook(url=url_webhook)
 
 # Endpoint webhook
 @app.post("/webhook")
