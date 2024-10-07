@@ -1,18 +1,16 @@
 from telegram import Update
-from telegram.ext import Application, CommandHandler
+from telegram.ext import ApplicationBuilder, CommandHandler
 from fastapi import FastAPI, Request
-from telegram.ext import ApplicationBuilder
 import requests
 import logging
 from datetime import datetime, timedelta
-import os
 
 app = FastAPI()
 
 # Configuração do logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-# Inicializando o Application fora da função
+# Inicializando o Application
 application = ApplicationBuilder().token("7359248793:AAEOyPPaHPZvEICuHXtzlgViUO3VP-Ubv7U").build()
 
 # Função para buscar os resultados da API
