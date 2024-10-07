@@ -84,7 +84,7 @@ async def on_startup():
     application.add_handler(CommandHandler("consultar", consultar_resultados))
 
     # Definindo webhook
-    url_webhook = "https://projetobot.vercel.app/webhook"  # Insira a URL do Vercel aqui
+    url_webhook = "https://projetobot.vercel.app"  # Insira a URL do Vercel aqui
     await application.bot.set_webhook(url=url_webhook)
 
 # Endpoint webhook
