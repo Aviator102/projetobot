@@ -1,16 +1,18 @@
 from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler
+from telegram.ext import Application, CommandHandler
 from fastapi import FastAPI, Request
+from telegram.ext import ApplicationBuilder
 import requests
 import logging
 from datetime import datetime, timedelta
+import os
 
 app = FastAPI()
 
 # Configuração do logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-# Inicializando o Application
+# Inicializando o Application fora da função
 application = ApplicationBuilder().token("7359248793:AAEOyPPaHPZvEICuHXtzlgViUO3VP-Ubv7U").build()
 
 # Função para buscar os resultados da API
@@ -63,7 +65,7 @@ async def consultar_resultados(update: Update, context) -> None:
 
         # Hora atual de Brasília
         hora_atual_brasilia = agora.strftime('%H:%M:%S')  # Ajusta para Brasília
-        mensagem += f"\n\n *Horário atual de Brasília:* {hora_atual_brasilia}"
+        mensagem += f"\n\n🕒 *Horário atual de Brasília:* {hora_atual_brasilia}"
 
         # Enviar mensagem com horários
         await context.bot.send_message(chat_id=chat_id, text=mensagem, parse_mode='MarkdownV2')
