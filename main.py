@@ -1,8 +1,9 @@
 import requests
 from telegram import Update
-from telegram.ext import Application, CommandHandler
+from telegram.ext import Application, CommandHandler, MessageHandler, filters
 from datetime import datetime, timedelta
 import logging
+import asyncio
 
 # Configuração do logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -23,7 +24,7 @@ def fetch_resultados():
         logging.error(f'Erro ao buscar resultados: {e}')
         return []
 
-# Função para consultar previsões de velas rosas e odds > 10
+# Função para responder ao comando /consultar
 async def consultar_resultados(update: Update, context) -> None:
     chat_id = update.message.chat_id
     
@@ -66,6 +67,17 @@ async def consultar_resultados(update: Update, context) -> None:
     else:
         await context.bot.send_message(chat_id=chat_id, text="Nenhum horário futuro encontrado.")
 
+# Função para responder a mensagens de texto
+async def respond_oi(update: Update, context) -> None:
+    chat_id = update.message.chat_id
+    # Responde ao usuário
+    mensagem = "Como posso ajudar?"
+    msg = await context.bot.send_message(chat_id=chat_id, text=mensagem)
+
+    # Aguarda 5 segundos e apaga a mensagem
+    await asyncio.sleep(5)
+    await context.bot.delete_message(chat_id=chat_id, message_id=msg.message_id)
+
 # Função principal para iniciar o bot
 def main():
     # Substitua pelo seu token do bot
@@ -75,6 +87,9 @@ def main():
 
     # Handler para o comando /consultar
     application.add_handler(CommandHandler("consultar", consultar_resultados))
+
+    # Handler para responder "oi"
+    application.add_handler(MessageHandler(filters.TEXT & filters.regex(r'(?i)oi'), respond_oi))
 
     # Inicia o bot com polling
     application.run_polling()
